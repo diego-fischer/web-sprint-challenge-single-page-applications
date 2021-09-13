@@ -5,7 +5,7 @@ import Form from './components/Form'
 import React, { useState } from 'react'
 
 const App = () => {
-  const [selection, setSelection] = useState({})
+  const [selection, setSelection] = useState(null)
   return (
     <Grid
       container
@@ -18,7 +18,7 @@ const App = () => {
       <Switch>
         {/* Rota do Form */}
         <Route path='/pizza'>
-          <Form />
+          <Form selection={selection} setSelection={setSelection} />
         </Route>
         <Body />
         {/* Rota da Home */}

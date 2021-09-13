@@ -8,15 +8,17 @@ import { VerticalSplitter } from './VerticalSplitter'
 import axios from 'axios'
 import { SavedUsers } from './SavedInstructions'
 import UserCard from './UserCard'
+import Response from './Response'
 
 function Form(props) {
   const selection = props.selection
   const setSelection = props.setSelection
   const [disabledButton, setDisabledButton] = useState(true)
+  const [response, setResponse] = useState(null)
 
   const initialFormState = {
-    name: '',
-    size: '',
+    'name-input': '',
+    'size-dropdown': '',
     broccolini: false,
     sausage: false,
     gorgonzola: false,
@@ -25,14 +27,14 @@ function Form(props) {
     pepperoni: false,
     peppers: false,
     ham: false,
-    special: '',
+    'special-text': '',
   }
 
   const [formData, setFormData] = useState(initialFormState)
 
   const initialErrorsState = {
-    name: '',
-    size: '',
+    'name-input': '',
+    'size-dropdown': '',
     broccolini: false,
     sausage: false,
     gorgonzola: false,
@@ -41,16 +43,16 @@ function Form(props) {
     pepperoni: false,
     peppers: false,
     ham: false,
-    special: '',
+    'special-text': '',
   }
   const [errors, setErrors] = useState(initialErrorsState)
 
   const formSchema = yup.object().shape({
-    name: yup
+    'name-input': yup
       .string()
       .required('Must include name.')
       .min(2, 'name must be at least 2 characters'),
-    size: yup
+    'size-dropdown': yup
       .string()
       .required('must include size')
       .min(1, 'must include size'),
@@ -62,7 +64,7 @@ function Form(props) {
     pepperoni: yup.bool(),
     peppers: yup.bool(),
     ham: yup.bool(),
-    special: yup.string(),
+    'special-text': yup.string(),
   })
 
   // sausage: yup.string().oneOf(['true', 'false']),
@@ -82,17 +84,11 @@ function Form(props) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    // debugger
-
     axios
-      .post('https://reqres.in/api/selection', formData)
+      .post('https://reqres.in/api/orders', formData)
       .then((res) => {
-        if (selection === undefined) {
-          setSelection(res.data)
-        } else {
-          const newArr = [...selection, res.data]
-          setSelection(newArr)
-        }
+        setSelection(formData)
+        setResponse(res.data)
         clearFormData()
       })
       .catch((err) => console.log('ERROR', err))
@@ -115,28 +111,36 @@ function Form(props) {
     formSchema.isValid(formData).then((valid) => setDisabledButton(!valid))
   }, [formData, errors, formSchema, selection])
 
+  useEffect(() => {
+    console.log('SELECTION', selection)
+    console.log('RESPONSE', response)
+  }, [selection, formData, response])
+
   return (
     <Container>
       <h1>Build your Pizza!</h1>
 
       <StyledForm id='pizza-form' onSubmit={(e) => handleSubmit(e)}>
-        <label for='id'>Name</label>
+        <label for='name-input'>Name</label>
 
         <input
-          id='name'
-          name='name'
+          id='name-input'
+          name='name-input'
           type='text'
-          value={formData.name}
+          value={formData['name-input']}
           onChange={(e) => handleChange(e)}
           style={{ width: '20%', boxSizing: 'border-box' }}
         />
+        {errors['name-input'] && (
+          <p style={{ color: 'red' }}>name must be at least 2 characters</p>
+        )}
 
-        <label for='size'>Size</label>
+        <label for='size-dropdown'>Size</label>
 
         <select
-          id='size'
-          name='size'
-          value={formData.size}
+          id='size-dropdown'
+          name='size-dropdown'
+          value={formData['size-dropdown']}
           onChange={(e) => handleChange(e)}
           style={{ width: '20%', boxSizing: 'border-box' }}
         >
@@ -226,12 +230,12 @@ function Form(props) {
           style={{ width: '100%', boxSizing: 'border-box' }}
         />
 
-        <label for='special'>Special Instructions</label>
+        <label for='special-text'>Special Instructions</label>
         <input
-          id='special'
-          name='special'
+          id='special-text'
+          name='special-text'
           type='text'
-          value={formData.special}
+          value={formData['special-text']}
           onChange={(e) => handleChange(e)}
           style={{ width: '50%', height: '50%', boxSizing: 'border-box' }}
         />
@@ -239,10 +243,27 @@ function Form(props) {
         <button
           style={{ width: '300px', height: '30px' }}
           disabled={disabledButton}
-          id='submitBtn'
+          id='order-button'
         >
           Submit!
         </button>
+
+        {selection && (
+          <Response
+            createdAt={selection.createdAt}
+            name={selection['name-input']}
+            size={selection['size-dropdown']}
+            anchovies={selection.anchovies}
+            broccolini={selection.broccolini}
+            gorgonzola={selection.gorgonzola}
+            ham={selection.ham}
+            mushroom={selection.mushroom}
+            pepperoni={selection.pepperoni}
+            peppers={selection.peppers}
+            sausage={selection.sausage}
+            special={selection['special-text']}
+          />
+        )}
       </StyledForm>
     </Container>
   )
