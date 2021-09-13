@@ -1,19 +1,13 @@
-import React from "react";
-import {
-		BrowserRouter as Router,
-		Switch,
-		Route,
-		Link
-	} from "react-router-dom";
-
-import {Button, Grid, Typography} from '@material-ui/core'
-
-import Form from './components/Form';
+import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom'
+import { Grid } from '@material-ui/core'
+import Body from './components/Body'
+import Form from './components/Form'
+import React, { useState } from 'react'
 
 const App = () => {
+  const [selection, setSelection] = useState({})
   return (
-    
-		<Grid
+    <Grid
       container
       spacing={0}
       direction='column'
@@ -21,29 +15,16 @@ const App = () => {
       justify='center'
       style={{ minHeight: '100vh' }}
     >
-
-			<Switch>
-				<Route path="/pizza-form">
-					<Form/>
-				</Route>
-
-				<Route exact path="/">
-					<Typography variant='h1'>
-						Your favorite food, delivered while coding
-					</Typography>
-
-					<Link to="/pizza" style={{ textDecoration: 'none' }}>
-							<Button variant="contained" color="primary" id="order-pizza" size='large'>
-							Order Pizza
-							</Button>
-					</Link>
-
-				</Route>
-			</Switch>
-
-
-		</Grid>
-		
+      <Switch>
+        {/* Rota do Form */}
+        <Route path='/pizza'>
+          <Form />
+        </Route>
+        <Body />
+        {/* Rota da Home */}
+        <Route exact path='/'></Route>
+      </Switch>
+    </Grid>
   )
 }
-export default App;
+export default App
